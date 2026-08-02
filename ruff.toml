@@ -1,0 +1,98 @@
+# ruff.toml
+exclude = [
+  ".bzr",
+  ".direnv",
+  ".eggs",
+  ".git",
+  ".git-rewrite",
+  ".hg",
+  ".ipynb_checkpoints",
+  ".mypy_cache",
+  ".nox",
+  ".pants.d",
+  ".pyenv",
+  ".pytest_cache",
+  ".pytype",
+  ".ruff_cache",
+  ".svn",
+  ".tox",
+  ".venv",
+  ".vscode",
+  "__pypackages__",
+  "_build",
+  "buck-out",
+  "build",
+  "dist",
+  "node_modules",
+  "site-packages",
+  "venv",
+  "alembic",
+]
+lint.select = ["F401", "ALL"]
+lint.ignore = [
+  "ANN201",
+    "ANN204",
+    "ANN205",
+    "ANN401",
+    "B008",
+    "BLE001",
+    "C901",
+    "COM812",
+    "D",
+    "D102",
+    "D103",
+    "DTZ005",
+    "E501",
+    "EM101",
+    "ERA001",
+    "F403",
+    "FAST001",
+    "FBT001",
+    "FBT002",
+    "FBT003",
+    "FIX002",
+    "FLY002",
+    "G004",
+    "N805",
+    "PGH004",
+    "PLR0912",
+    "PLR0913",
+    "PLR2004",
+    "RET503",
+    "RUF001",
+    "RUF002",
+    "RUF003",
+    "RUF013",
+    "S104",
+    "SIM102",
+    "SIM108",
+    "TD002",
+    "TD003",
+    "TD004",
+    "TID252",
+    "TRY002",
+    "TRY003",
+    "TRY300",
+    "TRY301",
+    "TRY400",
+  "S101"
+]
+lint.fixable = ["F401","ALL"]
+lint.unfixable = []
+
+
+line-length = 88
+indent-width = 4
+target-version = "py312"
+
+
+[format]
+quote-style = "double"
+indent-style = "space"
+skip-magic-trailing-comma = false
+line-ending = "auto"
+docstring-code-format = false
+
+# Ignore specific rules in specific files
+[lint.per-file-ignores]
+"**/__init__.py" = ["I", "F401"] # Applies to all __init__.py files
