@@ -1,0 +1,25 @@
+volumes:
+ fastapi-template-postgres:
+
+
+x-env: &default-env
+  env_file:
+    - ../.env
+
+services:
+  fastapi-template-postgres:
+    container_name: fastapi-template-postgres
+    image: postgres:15
+    <<: *default-env
+    volumes:
+      - /docker-volumes/vocal/resources/postgres:/var/lib/postgresql/data
+    restart: always
+    ports:
+      - "5470:5432"
+    networks:
+      - fastapi-template-network
+
+
+networks:
+  fastapi-template-network:
+    name: fastapi-template-network

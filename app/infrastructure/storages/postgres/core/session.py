@@ -17,7 +17,7 @@ def set_session_factory():
 
 
 async def get_db_session(request: Request) -> AsyncGenerator[Any, Any]:
-    async with request.state.session() as session:
+    async with request.app.state.session_factory() as session:
         try:
             yield session
         finally:
