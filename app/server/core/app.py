@@ -2,10 +2,10 @@ from typing import Annotated
 
 from fastapi import Depends, FastAPI
 from fastapi.routing import APIRoute
-from settings import ProjectSettings
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.config.settings import ProjectSettings
 from app.infrastructure.storage.postgres.core.session import get_db_session
 from app.server.core.lifespan import lifespan
 from app.server.core.router import api

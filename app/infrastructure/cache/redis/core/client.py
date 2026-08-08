@@ -1,6 +1,7 @@
 from redis import Redis
-from settings.redis import RedisSettings
 from starlette.requests import Request
+
+from app.config.settings import RedisSettings
 
 
 def create_redis_client(settings: RedisSettings):

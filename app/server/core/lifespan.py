@@ -1,8 +1,8 @@
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
-from settings import Settings
 
+from app.config.settings import Settings
 from app.infrastructure.cache.redis import create_redis_client
 from app.infrastructure.storage.postgres import create_engine, create_session_factory
 from app.infrastructure.storage.s3 import get_s3_client

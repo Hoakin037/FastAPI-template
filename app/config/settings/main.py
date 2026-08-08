@@ -1,6 +1,9 @@
 from pydantic_settings import BaseSettings
-from settings import PostgresSettings, ProjectSettings, S3Settings
-from settings.redis import RedisSettings
+
+from .postgres import PostgresSettings
+from .project import ProjectSettings
+from .redis import RedisSettings
+from .s3 import S3Settings
 
 
 class Settings(BaseSettings):
