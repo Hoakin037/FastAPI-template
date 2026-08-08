@@ -1,15 +1,13 @@
 from collections.abc import AsyncGenerator
 from typing import Any
 
-from sqlalchemy.ext.asyncio import async_sessionmaker
+from sqlalchemy.ext.asyncio import AsyncEngine, async_sessionmaker
 from starlette.requests import Request
 
-from app.infrastructure.storages.postgres.core.engine import get_engine
 
-
-def set_session_factory():
+def create_session_factory(engine: AsyncEngine):
     return async_sessionmaker(
-        bind=get_engine(),
+        bind=engine,
         autoflush=False,
         autocommit=False,
         expire_on_commit=False,

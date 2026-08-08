@@ -17,5 +17,5 @@ class S3Client:
         )
 
 
-async def get_s3_client():
-    return S3Client(settings=S3Settings())
+async def get_s3_client(settings: S3Settings):
+    return S3Client(settings=settings)

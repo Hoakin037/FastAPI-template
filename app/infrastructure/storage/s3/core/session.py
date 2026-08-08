@@ -3,7 +3,7 @@ from typing import Annotated
 
 from fastapi import Depends
 
-from app.infrastructure.storages.s3.core.client import S3Client, get_s3_client
+from app.infrastructure.storage.s3.core.client import S3Client, get_s3_client
 
 
 @asynccontextmanager

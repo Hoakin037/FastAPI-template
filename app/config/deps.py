@@ -1,5 +1,5 @@
-from .settings import PostgresSetting
+from .settings import PostgresSettings
 
 
 def get_postgres_setting():
-    return PostgresSetting.model_validate({})
+    return PostgresSettings.model_validate({})
