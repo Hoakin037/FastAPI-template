@@ -1,5 +1,3 @@
-from app.infrastructure.storage.postgres.core import (
-    create_engine,
-    create_session_factory,
-)
-from app.infrastructure.storage.postgres.core.schemas import PostgresSchemas
+from .engine import create_engine
+from .session import create_session_factory
+from app.infrastructure.storage.postgres.schemas import PostgresSchemas
