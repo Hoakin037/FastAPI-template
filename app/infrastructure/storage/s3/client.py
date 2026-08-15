@@ -1,4 +1,4 @@
-from boto3 import Session
+from aioboto3 import Session
 from settings import S3Settings
 
 
