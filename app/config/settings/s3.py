@@ -9,5 +9,5 @@ class S3Settings(BaseSettings):
 
     S3_ENDPOINT_URL: str = Field(default="http://localhost:9015", alias="S3_HOST")
     S3_BUCKET: str = Field(default="bucket", alias="S3_BUCKET")
-    S3_ACCESS_KEY: str = Field(default="key", alias="S3_ACCESS_KEY")
-    S3_SECRET_KEY: str = Field(default="secret", alias="S3_SECRET_KEY")
+    S3_ROOT_USER: str = Field(default="key", alias="S3_ROOT_USER")
+    S3_ROOT_PASSWORD: str = Field(default="secret", alias="S3_ROOT_PASSWORD")

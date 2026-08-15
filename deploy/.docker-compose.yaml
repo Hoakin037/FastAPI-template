@@ -1,5 +1,7 @@
 volumes:
- fastapi-template-postgres:
+  fastapi-template-postgres:
+  fastapi-template-minio-data:
+  fastapi-template-minio-storage:
 
 
 x-env: &default-env
@@ -12,14 +14,40 @@ services:
     image: postgres:15
     <<: *default-env
     volumes:
-      - /docker-volumes/vocal/resources/postgres:/var/lib/postgresql/data
+      - /docker-volumes/fastapi-templates/postgres:/var/lib/postgresql/data
     restart: always
     ports:
       - "5470:5432"
     networks:
       - fastapi-template-network
 
+  fastapi-template-minio:
+    container_name: fastapi-template-minio
+    image: minio/minio:latest
+    command:
+      server /data --console-address ":9001"
+    <<: *default-env
+    ports:
+      - "9021:9000"
+      - "9022:9001"
+    volumes:
+      - fastapi-template-minio-data:/var/lib/fastapi-template-minio
+      - fastapi-template-minio-storage:/data
+    restart: on-failure
+    networks:
+      - fastapi-template-network
 
+  fastapi-template-redis:
+    container_name: fastapi-template-redis
+    image: redis/redis-stack:6.2.6-v5
+    <<: *default-env
+    volumes:
+      - /docker-volumes/fastapi-templates/redis:/data
+    restart: on-failure
+    ports:
+      - "6390:6379"
+    networks:
+      - fastapi-template-network
 networks:
   fastapi-template-network:
     name: fastapi-template-network

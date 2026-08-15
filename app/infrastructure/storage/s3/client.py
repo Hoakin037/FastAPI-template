@@ -28,7 +28,7 @@ class S3Client:
 def create_s3_client(settings: S3Settings) -> S3Client:
     return S3Client(
         endpoint_utl=settings.S3_ENDPOINT_URL,
-        access_key_utl=settings.S3_ACCESS_KEY,
-        secret_access_utl=settings.S3_SECRET_KEY,
+        access_key_utl=settings.S3_ROOT_USER,
+        secret_access_utl=settings.S3_ROOT_PASSWORD,
         bucket=settings.S3_BUCKET,
     )
