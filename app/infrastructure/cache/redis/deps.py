@@ -3,4 +3,4 @@ from starlette.requests import Request
 
 
 async def get_redis_client(request: Request) -> Redis:
-    return request.app.state.redis()
+    return request.app.state.redis

@@ -7,7 +7,9 @@ class S3Settings(BaseSettings):
         env_file=".env", env_file_encoding="utf-8", extra="allow"
     )
 
-    S3_ENDPOINT_URL: str = Field(default="http://localhost:9015", alias="S3_HOST")
-    S3_BUCKET: str = Field(default="bucket", alias="S3_BUCKET")
+    S3_ENDPOINT_URL: str = Field(
+        default="http://localhost:9015", alias="S3_ENDPOINT_URL"
+    )
+    S3_BUCKET: str = Field(default="bucket", alias="S3_BUCKET_NAME")
     S3_ROOT_USER: str = Field(default="key", alias="S3_ROOT_USER")
     S3_ROOT_PASSWORD: str = Field(default="secret", alias="S3_ROOT_PASSWORD")

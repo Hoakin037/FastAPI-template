@@ -8,20 +8,19 @@ from sqlalchemy.orm import DeclarativeBase, Mapped, declared_attr, mapped_column
 class CoreModel(DeclarativeBase):
     sid: Any
 
-    # id: int
+    # sid: int
 
     created_at: Mapped[DateTime] = mapped_column(
         DateTime(timezone=True),
-        default=datetime.now(UTC).replace(microsecond=0),
+        default=lambda: datetime.now(UTC).replace(microsecond=0),
     )
 
     updated_at: Mapped[DateTime] = mapped_column(
         DateTime(timezone=True),
-        default=datetime.now(UTC).replace(microsecond=0),
-        onupdate=datetime.now(UTC).replace(microsecond=0),
+        default=lambda: datetime.now(UTC).replace(microsecond=0),
+        onupdate=lambda: datetime.now(UTC).replace(microsecond=0),
     )
 
-    @classmethod  # pyright: ignore[reportArgumentType]
     @declared_attr  # pyright: ignore[reportArgumentType]
     def __tablename__(cls) -> str:
         name = cls.__name__.replace("Model", "")
