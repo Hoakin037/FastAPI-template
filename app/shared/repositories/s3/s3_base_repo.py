@@ -18,9 +18,7 @@ class S3BaseRepository:
     async def get_object(self, bucket_name: str, key: str) -> bytes:
         async with self.client.get_raw_client() as client:
             response = await client.get_object(Bucket=bucket_name, Key=key)
-            data = await response["Body"].read()
-
-            return data
+            return await response["Body"].read()
 
     async def get_head_object(self, bucket: str, key: str) -> dict:
         async with self.client.get_raw_client() as client:
