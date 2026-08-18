@@ -7,7 +7,7 @@ from sqlalchemy import pool
 from alembic import context
 
 from app.config import get_postgres_setting
-from postgres import PostgresSchemas
+from app.infrastructure.storage.postgres import PostgresSchemas
 
 sys.path = ["", ".."] + sys.path[1:]
 
@@ -17,7 +17,10 @@ config = context.config
 
 # Interpret the config file for Python logging.
 # This line sets up loggers basically.
-fileConfig(config.config_file_name)
+
+
+
+
 
 # add your model's MetaData object here
 # for 'autogenerate' support
@@ -32,14 +35,16 @@ from app.infrastructure.storage.postgres.utils import target_metadata
 def get_url():
     settings = get_postgres_setting()
     user = settings.POSTGRES_USER
-    password = settings.postgres.POSTGRES_PASSWORD
-    host = settings.postgres.POSTGRES_HOST
-    port = settings.postgres.POSTGRES_PORT
-    db = settings.postgres.POSTGRES_DB
+    password = settings.POSTGRES_PASSWORD
+    host = settings.POSTGRES_HOST
+    port = settings.POSTGRES_PORT
+    db = settings.POSTGRES_DB
 
     url = f"postgresql://{user}:{password}@{host}:{port}/{db}"
     return url
 
+config.set_main_option("sqlalchemy.url", get_url())
+fileConfig(config.config_file_name)
 
 
 def run_migrations_offline() -> None:

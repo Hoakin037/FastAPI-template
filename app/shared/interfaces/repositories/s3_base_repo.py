@@ -1,13 +1,4 @@
-from asyncio import Semaphore
-
-from s3 import S3Client
-
-
-class S3BaseRepository:
-    def __init__(self, client: S3Client):
-        self.client = client
-        self._semaphore = Semaphore(10)
-
+class IS3BaseRepository:
     async def put_object(self, bucket_name: str, key: str, data: bytes) -> str: ...
 
     async def get_object(self, bucket_name: str, key: str) -> bytes: ...

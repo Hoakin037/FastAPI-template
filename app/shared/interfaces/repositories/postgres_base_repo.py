@@ -4,7 +4,6 @@ from typing import Any, TypeVar
 
 from pydantic import BaseModel
 from sqlalchemy import ColumnElement
-from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.sql.base import ExecutableOption
 
 from app.shared.models import CoreModel
@@ -15,10 +14,6 @@ UpdateSchema = TypeVar("UpdateSchema", bound=BaseModel)
 
 
 class IPostgresBaseRepo[ModelType, CreateSchema, UpdateSchema](ABC):
-    def __init__(self, model: type[ModelType], session: AsyncSession):
-        self.model: type[ModelType] = model
-        self.session: AsyncSession = session
-
     @abstractmethod
     async def get_by_sid(
         self, sid: Any, options: Sequence[ExecutableOption] | None = None
