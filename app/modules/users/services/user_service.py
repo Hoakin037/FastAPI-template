@@ -1,5 +1,5 @@
 from app.modules.users.interfaces import IUserRepo
-from app.modules.users.schemas.user import User, UserCreate
+from app.modules.users.schemas.user import User, UserCreate, UserUpdate
 
 
 class UserService:
@@ -9,3 +9,6 @@ class UserService:
     async def create_user(self, user: UserCreate) -> User:
         new_user = await self.user_repo.create(user)
         return User.model_validate(new_user)
+
+    async def update_user(self, user: UserUpdate) -> User:
+        pass
