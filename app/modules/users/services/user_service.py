@@ -30,12 +30,5 @@ class UserService:
 
         return User.model_validate(updated_user)
 
-    async def delete_user(
-        self, current_user_sid: UUID, user_sid_to_delete: UUID
-    ) -> None:
-        if current_user_sid != user_sid_to_delete:
-            raise BackendException(
-                error=SharedErrorCodes.ACCESS_DENIED_ERROR,
-            )
-
-        await self.user_repo.delete_by_sid(sid=user_sid_to_delete)
+    async def delete_user(self, user_sid: UUID) -> None:
+        await self.user_repo.delete_by_sid(sid=user_sid)
