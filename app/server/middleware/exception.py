@@ -1,3 +1,5 @@
+from collections.abc import Callable
+
 from fastapi.exceptions import RequestValidationError
 from starlette.requests import Request
 from starlette.responses import JSONResponse
@@ -17,12 +19,12 @@ class BackendExceptionHandler:
 
 
 class ExceptionMiddleware:
-    async def __call__(self, request: Request, call_next):
+    async def __call__(self, request: Request, call_next: Callable):
         try:
             return await call_next(request)
 
         except Exception as err:
-            logger.exception(f"Unexpected error: {err}")
+            logger.exception(f"Unexpected error: {err}")  # noqa: TRY401
             undefined_exception = BackendException(error=UndefinedError())
 
             return undefined_exception.response()
@@ -34,7 +36,7 @@ class ValidationExceptionHandler:
         _: Request,
         err: RequestValidationError,
     ) -> JSONResponse:
-        logger.exception(f"ValidationException: {err}")
+        logger.exception(f"Validation Exception: {err}")
         unprocessable_entity_error = BackendException(
             error=UnprocessableEntityError(),
         )
