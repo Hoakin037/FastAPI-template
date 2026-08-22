@@ -115,9 +115,7 @@ class PostgresBaseRepo[ModelType, CreateSchema, UpdateSchema]:
 
         return updated_objs
 
-    async def delete(
-        self, obj: ModelType | list[ModelType], with_commit: bool = True
-    ) -> None:
+    async def delete(self, obj: ModelType, with_commit: bool = True) -> None:
         await self.session.delete(obj)
         if with_commit:
             await self.session.commit()
@@ -132,7 +130,8 @@ class PostgresBaseRepo[ModelType, CreateSchema, UpdateSchema]:
             await self.session.execute(query)
 
         else:
-            await self.session.delete(self.model)
+            query = delete(self.model).where(self.model.sid == sid)
+            await self.session.execute(query)
 
         if with_commit:
             await self.session.commit()

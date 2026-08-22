@@ -40,6 +40,7 @@ services:
   fastapi-template-redis:
     container_name: fastapi-template-redis
     image: redis/redis-stack:6.2.6-v5
+    command: redis-server --requirepass ${REDIS_PASSWORD}
     <<: *default-env
     volumes:
       - /docker-volumes/fastapi-templates/redis:/data

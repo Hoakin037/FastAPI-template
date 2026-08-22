@@ -1,6 +1,6 @@
 from datetime import timedelta
 
-from redis import Redis
+from redis.asyncio.client import Redis
 
 
 class RedisBaseRepository:

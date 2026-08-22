@@ -96,3 +96,4 @@ docstring-code-format = false
 # Ignore specific rules in specific files
 [lint.per-file-ignores]
 "**/__init__.py" = ["I", "F401"] # Applies to all __init__.py files
+"tests/**" = ["ANN001"]
