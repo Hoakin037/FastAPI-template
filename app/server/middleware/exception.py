@@ -23,6 +23,10 @@ class ExceptionMiddleware:
         try:
             return await call_next(request)
 
+        except BackendException as err:
+            logger.warning("BackendException: %s", err)
+            return err.response()
+
         except Exception as err:
             logger.exception(f"Unexpected error: {err}")  # noqa: TRY401
             undefined_exception = BackendException(error=UndefinedError())
