@@ -10,6 +10,10 @@ COPY pyproject.toml poetry.lock /app/
 
 RUN poetry install
 
+
 COPY . .
+
 ENV PYTHONPATH=.
+
+RUN alembic upgrade head
 
