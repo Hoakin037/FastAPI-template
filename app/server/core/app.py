@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 from fastapi.exceptions import RequestValidationError, ValidationException
 from fastapi.routing import APIRoute
+from fastapi_pagination import add_pagination
 from pydantic import ValidationError
 from starlette.middleware.cors import CORSMiddleware
 
@@ -55,3 +56,5 @@ def setup_middleware():
 
 
 app.include_router(api)
+setup_middleware()
+add_pagination(app)

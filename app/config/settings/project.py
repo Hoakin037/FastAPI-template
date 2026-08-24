@@ -15,5 +15,6 @@ class ProjectSettings(BaseSettings):
     PROJECT_DESCRIPTION: str = "FastAPI Template"
 
     LOG_LEVEL: str = Field(default="INFO", alias="LOG_LEVEL")
+    RELOAD: bool = Field(default="False", alias="RELOAD")
 
     CORS_ORIGINS: list[str] = Field(default=["*"], alias="CORS_ORIGINS")
