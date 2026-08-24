@@ -16,21 +16,20 @@ class PostgresSettings(BaseSettings):
     POSTGRES_PASSWORD: str = Field(default="", alias="POSTGRES_PASSWORD")
     POSTGRES_DB: str = Field(default="postgres", alias="POSTGRES_DB")
 
-    POSTGRES_DATABASE_URL: PostgresDsn = PostgresDsn(url="postgresql://changme")
+    POSTGRES_DATABASE_URL: PostgresDsn = Field(default="postgresql://changme")
 
     @field_validator("POSTGRES_DATABASE_URL", mode="before")
-    def assemble_db_connection(cls, v: str | None, values: ValidationInfo) -> Any:
-        if isinstance(v, str):
+    @classmethod
+    def assemble_db_connection(cls, v: str | None, info: ValidationInfo) -> Any:
+        if isinstance(v, str) and "asyncpg" in v:
             return v
 
-        options = {
-            "scheme": "postgresql+asyncpg",
-            "username": values.data.get("POSTGRES_USER"),
-            "password": values.data.get("POSTGRES_PASSWORD"),
-            "host": values.data.get("POSTGRES_HOST"),
-            "port": values.data.get("POSTGRES_PORT"),
-            "path": f"{values.data.get('POSTGRES_DB') or ''}",
-        }
-        return PostgresDsn.build(**options)
+        user = info.data.get("POSTGRES_USER", "postgres")
+        password = info.data.get("POSTGRES_PASSWORD", "")
+        host = info.data.get("POSTGRES_HOST", "localhost")
+        port = info.data.get("POSTGRES_PORT", 5432)
+        db = info.data.get("POSTGRES_DB", "postgres")
+
+        return f"postgresql+asyncpg://{user}:{password}@{host}:{port}/{db}"
 
     DB_POOL_SIZE: int = Field(default=5, alias="DB_POOL_SIZE")

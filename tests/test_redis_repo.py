@@ -90,6 +90,6 @@ async def test_existance(get_redis_repo):
     repo = get_redis_repo
 
     await repo.set_instance(key=TEST_KEY_1, value=TEST_STR_VALUE)
-    exist = await repo.check_existance(key=TEST_KEY_1)
+    exist = await repo.check_existence(key=TEST_KEY_1)
 
     assert exist is True

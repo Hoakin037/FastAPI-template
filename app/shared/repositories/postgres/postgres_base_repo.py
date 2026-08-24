@@ -1,4 +1,5 @@
 from collections.abc import Sequence
+from logging import Logger
 from typing import Any, TypeVar
 
 from pydantic import BaseModel
@@ -6,6 +7,7 @@ from sqlalchemy import ColumnElement, Result, delete, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.sql.base import ExecutableOption
 
+from app.infrastructure.decorators import logg_function
 from app.shared.models import CoreModel
 
 ModelType = TypeVar("ModelType", bound=CoreModel)
@@ -14,10 +16,12 @@ UpdateSchema = TypeVar("UpdateSchema", bound=BaseModel)
 
 
 class PostgresBaseRepo[ModelType, CreateSchema, UpdateSchema]:
-    def __init__(self, model: type[ModelType], session: AsyncSession):
+    def __init__(self, model: type[ModelType], session: AsyncSession, logger: Logger):
         self.model: type[ModelType] = model
         self.session: AsyncSession = session
+        self._logger = logger
 
+    @logg_function(description="Get instance by sid")
     async def get_by_sid(
         self, sid: Any, options: Sequence[ExecutableOption] | None = None
     ) -> ModelType | None:
@@ -29,6 +33,7 @@ class PostgresBaseRepo[ModelType, CreateSchema, UpdateSchema]:
         result: Result = await self.session.execute(query)
         return result.scalars().first()
 
+    @logg_function(description="Get instance")
     async def get_all(
         self,
         *where_clause: ColumnElement,
@@ -45,6 +50,7 @@ class PostgresBaseRepo[ModelType, CreateSchema, UpdateSchema]:
         result: Result = await self.session.execute(query)
         return result.scalars().all()
 
+    @logg_function(description="Create instance")
     async def create(self, obj: CreateSchema, with_commit: bool = True) -> ModelType:
         db_obj = self.model(**obj.model_dump())
         self.session.add(db_obj)
@@ -57,6 +63,7 @@ class PostgresBaseRepo[ModelType, CreateSchema, UpdateSchema]:
 
         return db_obj
 
+    @logg_function(description="Create many instances")
     async def create_many(
         self, objs: Sequence[CreateSchema], with_commit: bool = True
     ) -> list[ModelType]:
@@ -70,6 +77,7 @@ class PostgresBaseRepo[ModelType, CreateSchema, UpdateSchema]:
 
         return db_objs
 
+    @logg_function(description="Update instance")
     async def update(
         self,
         db_obj: ModelType,
@@ -91,6 +99,7 @@ class PostgresBaseRepo[ModelType, CreateSchema, UpdateSchema]:
 
         return db_obj
 
+    @logg_function(description="Update many instances")
     async def update_many(
         self,
         pairs: Sequence[tuple[ModelType, UpdateSchema | dict[str, Any]]],
@@ -115,6 +124,7 @@ class PostgresBaseRepo[ModelType, CreateSchema, UpdateSchema]:
 
         return updated_objs
 
+    @logg_function(description="Delete instance")
     async def delete(self, obj: ModelType, with_commit: bool = True) -> None:
         await self.session.delete(obj)
         if with_commit:
@@ -122,6 +132,7 @@ class PostgresBaseRepo[ModelType, CreateSchema, UpdateSchema]:
         else:
             await self.session.flush()
 
+    @logg_function(description="Delete instance by sid")
     async def delete_by_sid(
         self, sid: Any | list[Any], with_commit: bool = True
     ) -> None:

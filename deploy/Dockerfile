@@ -10,6 +10,13 @@ COPY pyproject.toml poetry.lock /app/
 
 RUN poetry install
 
+
 COPY . .
+
 ENV PYTHONPATH=.
+
+COPY /deploy/init.sh /app/deploy/init.sh
+RUN chmod +x /app/deploy/init.sh
+
+CMD ["bash", "deploy/init.sh"]
 
