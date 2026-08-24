@@ -15,5 +15,8 @@ COPY . .
 
 ENV PYTHONPATH=.
 
-RUN alembic upgrade head
+COPY /deploy/init.sh /app/deploy/init.sh
+RUN chmod +x /app/deploy/init.sh
+
+CMD ["bash", "deploy/init.sh"]
 

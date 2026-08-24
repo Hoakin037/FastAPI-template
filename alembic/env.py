@@ -98,6 +98,8 @@ def run_migrations_online() -> None:
                 sql.text(f"CREATE SCHEMA IF NOT EXISTS {schema.value}")
             )
 
+        connection.commit()
+
         with context.begin_transaction():
             context.run_migrations()
 
