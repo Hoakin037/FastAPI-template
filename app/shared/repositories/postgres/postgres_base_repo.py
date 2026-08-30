@@ -1,14 +1,24 @@
 from collections.abc import Sequence
+from contextlib import suppress
 from logging import Logger
-from typing import Any, TypeVar
+from typing import Any, TypeVar, cast
 
+from app.shared.errors.error_code import SharedErrorCodes
+from app.shared.errors.exception import BackendException
 from pydantic import BaseModel
-from sqlalchemy import ColumnElement, Result, delete, select
+from app.shared.schemas.sort import SortParams
+from sqlalchemy import Column, ColumnElement, Result, Select, delete, func, select
+from sqlalchemy.ext.associationproxy import AssociationProxyInstance
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.ext.hybrid import hybrid_property
+from sqlalchemy.orm import class_mapper
+from sqlalchemy.orm.base import SQLORMOperations
 from sqlalchemy.sql.base import ExecutableOption
 
 from app.infrastructure.decorators import logg_function
+from app.shared.consts import SortDirection
 from app.shared.models import CoreModel
+from app.shared.schemas import CursorPaginationParams, PaginationParams
 
 ModelType = TypeVar("ModelType", bound=CoreModel)
 CreateSchema = TypeVar("CreateSchema", bound=BaseModel)
@@ -148,3 +158,92 @@ class PostgresBaseRepo[ModelType, CreateSchema, UpdateSchema]:
             await self.session.commit()
         else:
             await self.session.flush()
+
+    async def get_total(self, query: Select):
+        count_query = select(func.count()).select_from(query.subquery())
+        total_row = await self.session.scalar(count_query)
+
+        return cast("int", total_row)
+
+    async def _apply_pagination(
+        self, query: Select, pagination_params: PaginationParams
+    ) -> tuple[Sequence[ModelType], int]:
+        total = await self.get_total(query)
+
+        paginated_query = query.limit(pagination_params.limit).offset(
+            pagination_params.offset
+        )
+        items = await self.session.execute(paginated_query)
+        items = items.scalars().all()
+
+        return items, total
+
+    async def _apply_cursor_pagination(
+        self, query: Select, pagination_params: CursorPaginationParams
+    ) -> tuple[Sequence[ModelType], int]:
+        paginated_query = query.limit(pagination_params.limit).where(
+            self.model.sid > pagination_params.cursor
+            if pagination_params.cursor_direction == SortDirection.ASC
+            else self.model.sid < pagination_params.cursor
+        )
+        total = await self.get_total(paginated_query)
+
+        items = await self.session.execute(paginated_query)
+        items = items.scalars().all()
+
+        return items, total
+
+    async def _validate_sort_field(self, field_name: str) -> Column | SQLORMOperations:
+        if not hasattr(self.model, field_name):
+            raise ValueError(f"Invalid sort field: {field_name}")  # noqa: EM102
+
+        field = getattr(self.model, field_name)
+        field_descriptor = self.model.__dict__.get(field_name)
+        mapper = class_mapper(self.model)
+
+        if field_name in mapper.columns:
+            return getattr(self.model, field_name)
+
+        if isinstance(field, AssociationProxyInstance):
+            remote_attr = field.remote_attr
+            if remote_attr is None:
+                raise ValueError(f"Cannot sort by proxy field: {field_name}")  # noqa: EM102
+            return remote_attr
+
+        if isinstance(field_descriptor, hybrid_property):
+            try:
+                return field.expression
+            except (AttributeError, NotImplementedError):
+                raise ValueError(f"Cannot sort by hybrid property: {field_name}")  # noqa: EM102, B904
+
+        if field_name not in self.model.__table__.columns:
+            raise ValueError(f"Not a column field: {field_name}")  # noqa: EM102
+
+        return field
+
+    async def _apply_sorts(
+        self,
+        query: Select,
+        sort_params: SortParams,
+    ) -> Select:
+        if sort_params and sort_params.sort_direction:
+            try:
+                sort_field = await self._validate_sort_field(
+                    str(sort_params.sort_field)
+                )
+
+                if sort_params.sort_direction == SortDirection.DESC:
+                    sort_field = sort_field.desc()
+
+                with suppress(AttributeError, NotImplementedError):
+                    sort_field = sort_field.nulls_last()
+
+            except ValueError as e:
+                raise BackendException(
+                    error=SharedErrorCodes.INCORRECT_SORT_FIELD
+                ) from e
+
+            else:
+                return query.order_by(sort_field)
+
+        return query

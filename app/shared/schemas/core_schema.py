@@ -2,6 +2,7 @@ from datetime import UTC, datetime
 from typing import Any
 
 from pydantic import BaseModel, ConfigDict, field_validator
+from pydantic.alias_generators import to_camel
 
 
 class CoreSchema(BaseModel):
@@ -20,4 +21,5 @@ class CoreSchema(BaseModel):
         populate_by_name=True,
         extra="ignore",
         json_encoders={datetime: lambda v: v.isoformat()},
+        alias_generator=to_camel,
     )

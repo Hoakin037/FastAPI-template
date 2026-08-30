@@ -14,7 +14,7 @@ logger = setup_logging(__name__)
 class BackendExceptionHandler:
     @staticmethod
     async def handle(_: Request, err: BackendException) -> JSONResponse:
-        logger.exception("BackendException:")
+        logger.exception(f"BackendException: {err}")
         return err.response()
 
 

@@ -33,3 +33,9 @@ class EntityNotFoundError(ExceptionModel):
     http_status: int = status.HTTP_404_NOT_FOUND
     code: Literal["entity_not_found"] = "entity_not_found"
     message: str = "Not Found"
+
+
+class IncorrectSortFieldError(ExceptionModel):
+    http_status: int = status.HTTP_400_BAD_REQUEST
+    code: Literal["incorrect_sort_field"] = "incorrect_sort_field"
+    message: str = "Incorrect Sort Field"
