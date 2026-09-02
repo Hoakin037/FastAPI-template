@@ -23,7 +23,12 @@ from app.shared.consts import SortDirection
 from app.shared.errors.error_code import SharedErrorCodes
 from app.shared.errors.exception import BackendException
 from app.shared.models import CoreModel
-from app.shared.schemas import CursorPaginationParams, PaginationParams, SQLFilterBase, SortParams
+from app.shared.schemas import (
+    CursorPaginationParams,
+    PaginationParams,
+    SortParams,
+    SQLFilterBase,
+)
 
 ModelType = TypeVar("ModelType", bound=CoreModel)
 CreateSchema = TypeVar("CreateSchema", bound=BaseModel)

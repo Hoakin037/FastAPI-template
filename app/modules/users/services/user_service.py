@@ -1,6 +1,5 @@
 from uuid import UUID
 
-
 from app.infrastructure.decorators import logg_function
 from app.infrastructure.logger import setup_logging
 from app.modules.users.filters.user import UserFilter
@@ -13,7 +12,7 @@ from app.shared.schemas import (
     CursorPaginationParams,
     PaginatedResult,
     PaginationParams,
-SortParams
+    SortParams,
 )
 
 

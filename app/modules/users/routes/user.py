@@ -1,8 +1,7 @@
 from typing import Annotated
 from uuid import UUID
 
-from fastapi import APIRouter, Body, Depends, Path, Query
-from app.shared.schemas.sort import SortParams
+from fastapi import APIRouter, Body, Depends, Path
 from starlette import status
 
 from app.modules.users.filters.user import UserFilter
@@ -17,6 +16,7 @@ from app.shared.schemas import (
     PaginatedResult,
     PaginationParams,
 )
+from app.shared.schemas.sort import SortParams
 from app.shared.utils import generate_responses_from_errors
 
 router = APIRouter()
@@ -70,9 +70,11 @@ async def get_paginated_users(
     ),
 )
 async def get_cursor_paginated_users(
-        pagination_params: Annotated[CursorPaginationParams, Depends(CursorPaginationParams)],
-        sort_params: Annotated[UserSortParamsQuery, Depends(UserSortParamsQuery)],
-        filters: Annotated[UserFiltersQuery, Depends(UserFiltersQuery)],
+    pagination_params: Annotated[
+        CursorPaginationParams, Depends(CursorPaginationParams)
+    ],
+    sort_params: Annotated[UserSortParamsQuery, Depends(UserSortParamsQuery)],
+    filters: Annotated[UserFiltersQuery, Depends(UserFiltersQuery)],
     user_service: Annotated[UserService, Depends(get_user_service)],
 ):
     return await user_service.get_cursor_paginated_users(

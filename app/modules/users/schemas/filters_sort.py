@@ -1,7 +1,6 @@
 from uuid import UUID
 
 from fastapi import Query
-from pydantic import Field
 
 from app.modules.users.consts import UsersSortBy
 from app.shared.consts import SortDirection

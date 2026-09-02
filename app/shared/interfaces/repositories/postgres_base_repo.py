@@ -3,13 +3,12 @@ from collections.abc import Sequence
 from typing import Any, TypeVar
 
 from pydantic import BaseModel
-from app.shared.schemas import CursorPaginationParams, PaginationParams, SQLFilterBase
-from app.shared.schemas.sort import SortParams
 from sqlalchemy import ColumnElement, Select
-from sqlalchemy.orm import Query
 from sqlalchemy.sql.base import ExecutableOption
 
 from app.shared.models import CoreModel
+from app.shared.schemas import CursorPaginationParams, PaginationParams
+from app.shared.schemas.sort import SortParams
 
 ModelType = TypeVar("ModelType", bound=CoreModel)
 CreateSchema = TypeVar("CreateSchema", bound=BaseModel)
@@ -80,4 +79,3 @@ class IPostgresBaseRepo[ModelType, CreateSchema, UpdateSchema](ABC):
         query: Select,
         sort_params: SortParams,
     ) -> Select: ...
-
