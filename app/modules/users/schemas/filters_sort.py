@@ -6,8 +6,10 @@ from pydantic import Field
 from app.modules.users.consts import UsersSortBy
 from app.shared.consts import SortDirection
 from app.shared.schemas import CoreSchema
+from app.shared.utils import partial_schema
 
 
+@partial_schema
 class UserFiltersQuery(CoreSchema):
     age_from: int = Query(None)
     age_to: int = Query(None)

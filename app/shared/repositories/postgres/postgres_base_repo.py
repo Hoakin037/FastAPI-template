@@ -236,8 +236,8 @@ class PostgresBaseRepo[ModelType, CreateSchema, UpdateSchema]:
     ) -> Select:
         if sort_params and sort_params.sort_field:
             try:
-                sort_field = await self._validate_sort_field(
-                    str(sort_params.sort_field)
+                sort_field = self._validate_sort_field(
+                    str(sort_params.sort_field.value)
                 )
 
                 sort_field = self._apply_sort_direction(
