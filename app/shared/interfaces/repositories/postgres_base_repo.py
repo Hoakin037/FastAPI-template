@@ -3,7 +3,10 @@ from collections.abc import Sequence
 from typing import Any, TypeVar
 
 from pydantic import BaseModel
-from sqlalchemy import ColumnElement
+from app.shared.schemas import CursorPaginationParams, PaginationParams, SQLFilterBase
+from app.shared.schemas.sort import SortParams
+from sqlalchemy import ColumnElement, Select
+from sqlalchemy.orm import Query
 from sqlalchemy.sql.base import ExecutableOption
 
 from app.shared.models import CoreModel
@@ -60,3 +63,21 @@ class IPostgresBaseRepo[ModelType, CreateSchema, UpdateSchema](ABC):
     async def delete_by_sid(
         self, sid: Any | list[Any], with_commit: bool = True
     ) -> None: ...
+
+    @abstractmethod
+    async def _apply_pagination(
+        self, query: Select, pagination_params: PaginationParams
+    ) -> tuple[Sequence[ModelType], int]: ...
+
+    @abstractmethod
+    async def _apply_cursor_pagination(
+        self, query: Select, pagination_params: CursorPaginationParams
+    ) -> tuple[Sequence[ModelType], int]: ...
+
+    @abstractmethod
+    async def _apply_sorts(
+        self,
+        query: Select,
+        sort_params: SortParams,
+    ) -> Select: ...
+

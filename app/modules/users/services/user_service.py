@@ -1,7 +1,9 @@
 from uuid import UUID
 
+
 from app.infrastructure.decorators import logg_function
 from app.infrastructure.logger import setup_logging
+from app.modules.users.filters.user import UserFilter
 from app.modules.users.interfaces import IUserRepo
 from app.modules.users.schemas.user import User, UserCreate, UserUpdate
 from app.shared.errors.error_code import SharedErrorCodes
@@ -11,6 +13,7 @@ from app.shared.schemas import (
     CursorPaginationParams,
     PaginatedResult,
     PaginationParams,
+SortParams
 )
 
 
@@ -29,9 +32,14 @@ class UserService:
 
     @logg_function(description="Get paginated users")
     async def get_paginated_users(
-        self, pagination_params: PaginationParams
+        self,
+        pagination_params: PaginationParams,
+        sort_params: SortParams,
+        filters: UserFilter,
     ) -> PaginatedResult[User]:
-        users, total = await self.user_repo.get_paginated_users(pagination_params)
+        users, total = await self.user_repo.get_paginated_users(
+            pagination_params, filters, sort_params
+        )
 
         return PaginatedResult[User](
             items=[User.model_validate(user) for user in users],
@@ -42,10 +50,13 @@ class UserService:
 
     @logg_function(description="Get cursor paginated users")
     async def get_cursor_paginated_users(
-        self, pagination_params: CursorPaginationParams
+        self,
+        pagination_params: CursorPaginationParams,
+        sort_params: SortParams,
+        filters: UserFilter,
     ) -> CursorPaginatedResult[User]:
         users, total = await self.user_repo.get_cursor_paginated_users(
-            pagination_params
+            pagination_params, filters, sort_params
         )
 
         return CursorPaginatedResult[User](

@@ -3,22 +3,27 @@ from contextlib import suppress
 from logging import Logger
 from typing import Any, TypeVar, cast
 
-from app.shared.errors.error_code import SharedErrorCodes
-from app.shared.errors.exception import BackendException
 from pydantic import BaseModel
-from app.shared.schemas.sort import SortParams
-from sqlalchemy import Column, ColumnElement, Result, Select, delete, func, select
-from sqlalchemy.ext.associationproxy import AssociationProxyInstance
+from sqlalchemy import (
+    ColumnElement,
+    Result,
+    Select,
+    delete,
+    func,
+    inspect,
+    select,
+)
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.ext.hybrid import hybrid_property
-from sqlalchemy.orm import class_mapper
-from sqlalchemy.orm.base import SQLORMOperations
+from sqlalchemy.orm import ColumnProperty, Query
 from sqlalchemy.sql.base import ExecutableOption
 
 from app.infrastructure.decorators import logg_function
 from app.shared.consts import SortDirection
+from app.shared.errors.error_code import SharedErrorCodes
+from app.shared.errors.exception import BackendException
 from app.shared.models import CoreModel
-from app.shared.schemas import CursorPaginationParams, PaginationParams
+from app.shared.schemas import CursorPaginationParams, PaginationParams, SQLFilterBase, SortParams
 
 ModelType = TypeVar("ModelType", bound=CoreModel)
 CreateSchema = TypeVar("CreateSchema", bound=BaseModel)
@@ -193,57 +198,65 @@ class PostgresBaseRepo[ModelType, CreateSchema, UpdateSchema]:
 
         return items, total
 
-    async def _validate_sort_field(self, field_name: str) -> Column | SQLORMOperations:
-        if not hasattr(self.model, field_name):
-            raise ValueError(f"Invalid sort field: {field_name}")  # noqa: EM102
+    def _validate_sort_field(self, field_name: str) -> ColumnElement[Any]:
+        mapper = inspect(self.model)
 
-        field = getattr(self.model, field_name)
-        field_descriptor = self.model.__dict__.get(field_name)
-        mapper = class_mapper(self.model)
-
-        if field_name in mapper.columns:
+        mapped_attr = mapper.attrs.get(field_name)
+        if isinstance(mapped_attr, ColumnProperty):
             return getattr(self.model, field_name)
 
-        if isinstance(field, AssociationProxyInstance):
-            remote_attr = field.remote_attr
-            if remote_attr is None:
-                raise ValueError(f"Cannot sort by proxy field: {field_name}")  # noqa: EM102
-            return remote_attr
+        descriptor = mapper.all_orm_descriptors.get(field_name)
+        if isinstance(descriptor, hybrid_property):
+            field = getattr(self.model, field_name, None)
 
-        if isinstance(field_descriptor, hybrid_property):
             try:
-                return field.expression
-            except (AttributeError, NotImplementedError):
-                raise ValueError(f"Cannot sort by hybrid property: {field_name}")  # noqa: EM102, B904
+                expression = field.expression
+            except (AttributeError, NotImplementedError) as exc:
+                raise ValueError(
+                    f"Cannot sort by hybrid property: {field_name}"  # noqa: EM102
+                ) from exc
 
-        if field_name not in self.model.__table__.columns:
-            raise ValueError(f"Not a column field: {field_name}")  # noqa: EM102
+            return expression
 
-        return field
+        raise ValueError(f"Invalid sort field: {field_name}")  # noqa: EM102
+
+    @staticmethod
+    def _apply_sort_direction(
+        sort_field: ColumnElement[Any], sort_direction: SortDirection
+    ) -> Select:
+        if sort_direction == SortDirection.DESC:
+            return sort_field.desc()
+
+        return sort_field.asc()
 
     async def _apply_sorts(
         self,
         query: Select,
         sort_params: SortParams,
     ) -> Select:
-        if sort_params and sort_params.sort_direction:
+        if sort_params and sort_params.sort_field:
             try:
                 sort_field = await self._validate_sort_field(
                     str(sort_params.sort_field)
                 )
 
-                if sort_params.sort_direction == SortDirection.DESC:
-                    sort_field = sort_field.desc()
+                sort_field = self._apply_sort_direction(
+                    sort_field, sort_params.sort_direction
+                )
 
                 with suppress(AttributeError, NotImplementedError):
                     sort_field = sort_field.nulls_last()
 
-            except ValueError as e:
+            except ValueError as exc:
                 raise BackendException(
-                    error=SharedErrorCodes.INCORRECT_SORT_FIELD
-                ) from e
+                    error=SharedErrorCodes.INVALID_SORT_FIELD_ERROR
+                ) from exc
 
             else:
                 return query.order_by(sort_field)
 
         return query
+
+    @staticmethod
+    async def _apply_filters(query: Select, filters: SQLFilterBase) -> Query | Select:
+        return filters.filter(query)

@@ -2,8 +2,11 @@ from typing import Annotated
 from uuid import UUID
 
 from fastapi import APIRouter, Body, Depends, Path, Query
+from app.shared.schemas.sort import SortParams
 from starlette import status
 
+from app.modules.users.filters.user import UserFilter
+from app.modules.users.schemas.filters_sort import UserFiltersQuery, UserSortParamsQuery
 from app.modules.users.schemas.user import User, UserCreate, UserUpdate
 from app.modules.users.services.deps import get_user_service
 from app.modules.users.services.user_service import UserService
@@ -43,10 +46,20 @@ async def get_users(
     ),
 )
 async def get_paginated_users(
-    pagination_params: Annotated[PaginationParams, Query()],
+    pagination_params: Annotated[PaginationParams, Depends(PaginationParams)],
+    sort_params: Annotated[UserSortParamsQuery, Depends(UserSortParamsQuery)],
+    filters: Annotated[UserFiltersQuery, Depends(UserFiltersQuery)],
     user_service: Annotated[UserService, Depends(get_user_service)],
 ):
-    return await user_service.get_paginated_users(pagination_params)
+    return await user_service.get_paginated_users(
+        pagination_params=pagination_params,
+        sort_params=SortParams(
+            sort_field=sort_params.sort_by, sort_direction=sort_params.sort_direction
+        ),
+        filters=UserFilter(
+            age__gte=filters.age_from, age__lte=filters.age_to, sid=filters.sid
+        ),
+    )
 
 
 @router.get(
@@ -57,10 +70,20 @@ async def get_paginated_users(
     ),
 )
 async def get_cursor_paginated_users(
-    pagination_params: Annotated[CursorPaginationParams, Query()],
+        pagination_params: Annotated[CursorPaginationParams, Depends(CursorPaginationParams)],
+        sort_params: Annotated[UserSortParamsQuery, Depends(UserSortParamsQuery)],
+        filters: Annotated[UserFiltersQuery, Depends(UserFiltersQuery)],
     user_service: Annotated[UserService, Depends(get_user_service)],
 ):
-    return await user_service.get_cursor_paginated_users(pagination_params)
+    return await user_service.get_cursor_paginated_users(
+        pagination_params=pagination_params,
+        sort_params=SortParams(
+            sort_field=sort_params.sort_by, sort_direction=sort_params.sort_direction
+        ),
+        filters=UserFilter(
+            age__gte=filters.age_from, age__lte=filters.age_to, sid=filters.sid
+        ),
+    )
 
 
 @router.post(
