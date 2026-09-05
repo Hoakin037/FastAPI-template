@@ -3,6 +3,7 @@ from typing import Any
 
 from pydantic import BaseModel, create_model
 from pydantic.fields import FieldInfo
+from pydantic.json_schema import SkipJsonSchema
 
 
 def partial_schema(model: type[BaseModel]):
@@ -12,7 +13,11 @@ def partial_schema(model: type[BaseModel]):
     ) -> tuple[Any, FieldInfo]:
         new = deepcopy(field)
         new.default = default
-        new.annotation = field.annotation or None
+        new.annotation = (
+            (field.annotation | SkipJsonSchema[None])
+            if field.annotation is not None
+            else SkipJsonSchema[None]
+        )
 
         return new.annotation, new
 
