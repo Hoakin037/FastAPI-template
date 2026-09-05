@@ -52,9 +52,7 @@ class IPostgresBaseRepo[ModelType, CreateSchema, UpdateSchema](ABC):
         ...
 
     @abstractmethod
-    async def create(
-        self, obj: CreateSchema, with_commit: bool = True
-    ) -> ModelType:
+    async def create(self, obj: CreateSchema, with_commit: bool = True) -> ModelType:
         """
         Create and persist one model instance from a Pydantic schema.
 
@@ -110,9 +108,7 @@ class IPostgresBaseRepo[ModelType, CreateSchema, UpdateSchema](ABC):
         ...
 
     @abstractmethod
-    async def delete(
-        self, obj: ModelType, with_commit: bool = True
-    ) -> None:
+    async def delete(self, obj: ModelType, with_commit: bool = True) -> None:
         """
         Delete one model instance.
 
