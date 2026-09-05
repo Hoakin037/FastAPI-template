@@ -75,15 +75,21 @@ async def test_delete_instance(get_redis_repo):
 async def test_delete_by_prefix(get_redis_repo):
     repo = get_redis_repo
 
-    await repo.set_instance(key=f"{TEST_PREFIX}{TEST_KEY_1}", value=TEST_STR_VALUE)
-    await repo.set_instance(key=f"{TEST_PREFIX}{TEST_KEY_2}", value=TEST_STR_VALUE)
+    prefixed_key_1 = f"{TEST_PREFIX}{TEST_KEY_1}"
+    prefixed_key_2 = f"{TEST_PREFIX}{TEST_KEY_2}"
+
+    await repo.set_instance(key=prefixed_key_1, value=TEST_STR_VALUE)
+    await repo.set_instance(key=prefixed_key_2, value=TEST_STR_VALUE)
+    await repo.set_instance(key=TEST_KEY_1, value=TEST_STR_VALUE)
     await repo.delete_by_prefix(prefix=TEST_PREFIX)
 
-    result_1 = await repo.get_instance(key=TEST_KEY_1)
-    result_2 = await repo.get_instance(key=TEST_KEY_2)
+    result_1 = await repo.get_instance(key=prefixed_key_1)
+    result_2 = await repo.get_instance(key=prefixed_key_2)
+    not_prefixed_result = await repo.get_instance(key=TEST_KEY_1)
 
     assert result_1 is None
     assert result_2 is None
+    assert not_prefixed_result == TEST_STR_VALUE
 
 
 async def test_existance(get_redis_repo):
