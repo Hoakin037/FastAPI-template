@@ -31,7 +31,9 @@ class FakeRawS3Client:
     async def __aexit__(self, exc_type, exc, tb):
         return None
 
-    async def put_object(self, Bucket: str, Key: str, Body: bytes) -> None:  # noqa: N803
+    async def put_object(  # noqa: N803
+        self, Bucket: str, Key: str, Body: bytes
+    ) -> None:
         self.objects[(Bucket, Key)] = Body
 
     async def get_object(self, Bucket: str, Key: str) -> dict:  # noqa: N803

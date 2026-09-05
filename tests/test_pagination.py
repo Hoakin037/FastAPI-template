@@ -1,6 +1,7 @@
 import pytest
 from pydantic import ValidationError
 
+from app.shared.consts import SortDirection
 from app.shared.schemas.pagination import (
     MAX_PAGE_LIMIT,
     CursorPaginatedResult,
@@ -8,7 +9,6 @@ from app.shared.schemas.pagination import (
     PaginatedResult,
     PaginationParams,
 )
-from app.shared.consts import SortDirection
 from app.shared.utils import count_pages
 
 
