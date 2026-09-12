@@ -94,5 +94,4 @@ poetry run pre-commit run --all-files
 
 - [docs/architecture.md](docs/architecture.md) - архитектура и поток запроса.
 - [docs/structure.md](docs/structure.md) - структура каталогов и назначение слоев.
-- [docs/code-style.md](docs/code-style.md) - стиль кода и соглашения.
 - [docs/development.md](docs/development.md) - локальная разработка, миграции, тесты.
